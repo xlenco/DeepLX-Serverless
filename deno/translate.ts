@@ -1,6 +1,7 @@
 import axios from "https://cdn.skypack.dev/axios";
+import { randomInt } from "https://deno.land/std@0.198.0/math/random.ts";
 
-// DeepL API 基础 URL 和请求头配置
+// DeepL API的基础URL和请求头设置
 const DEEPL_BASE_URL = 'https://www2.deepl.com/jsonrpc';
 const headers = {
   'Content-Type': 'application/json',
@@ -16,19 +17,17 @@ const headers = {
   Connection: 'keep-alive',
 };
 
-// 计算文本中 'i' 字母的个数
+// 计算文本中出现 "i" 字符的次数
 function getICount(translateText: string) {
   return (translateText || '').split('i').length - 1;
 }
 
-// 生成随机数的方法
+// 生成随机数
 function getRandomNumber() {
-  const array = new Uint32Array(1);
-  crypto.getRandomValues(array);
-  return array[0] % (8399998 - 8300000 + 1) + 8300000 * 1000;
+  return randomInt(8300000, 8399998) * 1000;
 }
 
-// 根据 'i' 字母个数计算时间戳
+// 获取时间戳，并根据 "i" 的数量调整
 function getTimestamp(iCount: number) {
   const ts = Date.now();
   if (iCount === 0) {
@@ -38,7 +37,7 @@ function getTimestamp(iCount: number) {
   return ts - (ts % iCount) + iCount;
 }
 
-// 翻译函数，调用 DeepL API
+// 主要翻译功能
 export async function translate(
   text: string,
   sourceLang = 'AUTO',
@@ -46,11 +45,13 @@ export async function translate(
   alternativeCount = 0,
   printResult = false,
 ) {
-  const iCount = getICount(text);
-  const id = getRandomNumber();
+  const iCount = getICount(text); // 获取 "i" 的数量
+  const id = getRandomNumber();   // 获取随机数
 
+  // 限制备选翻译结果的数量
   alternativeCount = Math.max(Math.min(3, alternativeCount), 0);
 
+  // 构建请求数据
   const postData = {
     jsonrpc: '2.0',
     method: 'LMT_handle_texts',
@@ -66,8 +67,10 @@ export async function translate(
     },
   };
 
+  // 转换请求数据为JSON字符串
   let postDataStr = JSON.stringify(postData);
 
+  // 根据条件对字符串进行处理
   if ((id + 5) % 29 === 0 || (id + 3) % 13 === 0) {
     postDataStr = postDataStr.replace('"method":"', '"method" : "');
   } else {
@@ -75,6 +78,7 @@ export async function translate(
   }
 
   try {
+    // 发送请求到DeepL API
     const response = await axios.post(DEEPL_BASE_URL, postDataStr, { headers: headers });
 
     if (response.status === 429) {
@@ -86,6 +90,7 @@ export async function translate(
       return;
     }
 
+    // 解析和返回翻译结果
     const result = {
       text: response.data.result.texts[0].text,
       alternatives: response.data.result.texts[0].alternatives.map((alternative: any) => alternative.text)
