@@ -35,5 +35,5 @@ jobs:
         uses: denoland/deployctl@v1
         with:
           project: "deeplx-server"
-          entrypoint: "server.ts"
+          entrypoint: "server.js"
           root: "deno"
