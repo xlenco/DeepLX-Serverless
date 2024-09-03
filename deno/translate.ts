@@ -1,5 +1,4 @@
 import axios from "https://cdn.skypack.dev/axios";
-import { randomInt } from "https://deno.land/std@0.198.0/math/random.ts";
 
 // DeepL API的基础URL和请求头设置
 const DEEPL_BASE_URL = 'https://www2.deepl.com/jsonrpc';
@@ -24,7 +23,7 @@ function getICount(translateText: string) {
 
 // 生成随机数
 function getRandomNumber() {
-  return randomInt(8300000, 8399998) * 1000;
+  return Math.floor(Math.random() * (8399998 - 8300000 + 1)) + 8300000;
 }
 
 // 获取时间戳，并根据 "i" 的数量调整
@@ -46,7 +45,7 @@ export async function translate(
   printResult = false,
 ) {
   const iCount = getICount(text); // 获取 "i" 的数量
-  const id = getRandomNumber();   // 获取随机数
+  const id = getRandomNumber() * 1000;   // 获取随机数并乘以1000
 
   // 限制备选翻译结果的数量
   alternativeCount = Math.max(Math.min(3, alternativeCount), 0);
