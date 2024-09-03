@@ -32,6 +32,7 @@ router
 
     // 检查请求体
     const body = await ctx.request.body().value;
+    console.log("Received body:", body); // 调试信息
 
     if (!body || !body.text) {
       const duration = Date.now() - startTime;
@@ -50,6 +51,7 @@ router
 
     try {
       const result = await translate(text, source_lang, target_lang, alt_count);
+      console.log("Translate result:", result); // 调试信息
       const duration = Date.now() - startTime;
       console.log(`[LOG] ${new Date().toISOString()} | 200 | ${duration}ms | POST "translate"`);
 
