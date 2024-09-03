@@ -1,4 +1,4 @@
-import { Application, Router, Context } from "https://deno.land/x/oak/mod.ts";
+import { Application, Router, Context } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import { translate } from "./translate.ts";
 
 // 读取配置文件

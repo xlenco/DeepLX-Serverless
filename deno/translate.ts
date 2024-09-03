@@ -1,7 +1,8 @@
-// translate.ts
-const DEEPL_BASE_URL = 'https://www2.deepl.com/jsonrpc';
+import axios from "https://cdn.skypack.dev/axios";
 
-const headers = new Headers({
+// DeepL API 基础 URL 和请求头配置
+const DEEPL_BASE_URL = 'https://www2.deepl.com/jsonrpc';
+const headers = {
   'Content-Type': 'application/json',
   Accept: '*/*',
   'x-app-os-name': 'iOS',
@@ -13,17 +14,22 @@ const headers = new Headers({
   'x-app-build': '510265',
   'x-app-version': '2.9.1',
   Connection: 'keep-alive',
-});
+};
 
-function getICount(translateText: string): number {
+// 计算文本中 'i' 字母的个数
+function getICount(translateText: string) {
   return (translateText || '').split('i').length - 1;
 }
 
-function getRandomNumber(): number {
-  return Math.floor(Math.random() * (8399998 - 8300000 + 1) + 8300000) * 1000;
+// 生成随机数的方法
+function getRandomNumber() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] % (8399998 - 8300000 + 1) + 8300000 * 1000;
 }
 
-function getTimestamp(iCount: number): number {
+// 根据 'i' 字母个数计算时间戳
+function getTimestamp(iCount: number) {
   const ts = Date.now();
   if (iCount === 0) {
     return ts;
@@ -32,6 +38,7 @@ function getTimestamp(iCount: number): number {
   return ts - (ts % iCount) + iCount;
 }
 
+// 翻译函数，调用 DeepL API
 export async function translate(
   text: string,
   sourceLang = 'AUTO',
@@ -68,16 +75,10 @@ export async function translate(
   }
 
   try {
-    const response = await fetch(DEEPL_BASE_URL, {
-      method: 'POST',
-      headers: headers,
-      body: postDataStr,
-    });
+    const response = await axios.post(DEEPL_BASE_URL, postDataStr, { headers: headers });
 
     if (response.status === 429) {
-      throw new Error(
-        `Too many requests, your IP has been blocked by DeepL temporarily, please don't request it frequently in a short time.`
-      );
+      throw new Error(`Too many requests, your IP has been blocked by DeepL temporarily, please don't request it frequently in a short time.`);
     }
 
     if (response.status !== 200) {
@@ -85,16 +86,14 @@ export async function translate(
       return;
     }
 
-    const result = await response.json();
-    const data = {
-      text: result.result.texts[0].text,
-      alternatives: result.result.texts[0].alternatives.map((alternative: any) => alternative.text),
+    const result = {
+      text: response.data.result.texts[0].text,
+      alternatives: response.data.result.texts[0].alternatives.map((alternative: any) => alternative.text)
     };
-
     if (printResult) {
-      console.log(data);
+      console.log(result);
     }
-    return data;
+    return result;
   } catch (err) {
     console.error(err);
   }
