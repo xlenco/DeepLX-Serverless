@@ -106,7 +106,7 @@ curl --location --request POST 'http://localhost:9000/translate' --header 'Conte
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=guobao2333/DeepLX-Serverless&type=Date" />
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=guobao2333/DeepLX-Serverless&type=Date" />
  </picture>
-</a>
+</a> 
 
 ## Acknowledgments | 鸣谢
 
